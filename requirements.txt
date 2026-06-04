@@ -1,0 +1,4 @@
+python-pptx>=0.6.21
+requests>=2.28.0
+staticmap>=0.5.7
+Pillow>=9.0.0
