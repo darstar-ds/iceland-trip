@@ -144,7 +144,7 @@ if page == "Edit Attractions":
 
             img_path = _cached_image(loc["name"])
             if img_path:
-                cols[0].image(img_path, width=83)
+                cols[0].image(img_path, width=125)
             else:
                 cols[0].markdown("📍")
 
