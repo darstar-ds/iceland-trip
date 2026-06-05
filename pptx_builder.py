@@ -493,17 +493,17 @@ def build_presentation(days, output_path):
             img = images.get(name)
 
             desc_lines = max(1, math.ceil(len(desc) / 105))
-            row_height = 0.22 + desc_lines * 0.18 + 0.10
+            row_height = max(0.85, 0.30 + desc_lines * 0.18 + 0.10)
 
             if img:
                 try:
-                    s.shapes.add_picture(img, Inches(0.3), Inches(top), height=Inches(0.55))
+                    s.shapes.add_picture(img, Inches(0.3), Inches(top), height=Inches(0.83))
                 except Exception:
                     pass
             elif not img:
                 try:
                     icon = s.shapes.add_shape(
-                        MSO_SHAPE.RECTANGLE, Inches(0.3), Inches(top), Inches(0.55), Inches(0.55)
+                        MSO_SHAPE.RECTANGLE, Inches(0.3), Inches(top), Inches(0.83), Inches(0.83)
                     )
                     icon.fill.solid()
                     icon.fill.fore_color.rgb = RGBColor(0xCC, 0xCC, 0xCC)
@@ -511,7 +511,7 @@ def build_presentation(days, output_path):
                 except Exception:
                     pass
 
-            box = s.shapes.add_textbox(Inches(1.15), Inches(top), Inches(6.0), Inches(row_height))
+            box = s.shapes.add_textbox(Inches(1.3), Inches(top), Inches(5.7), Inches(row_height))
             tf = box.text_frame
             tf.word_wrap = True
             r1 = tf.paragraphs[0].add_run()

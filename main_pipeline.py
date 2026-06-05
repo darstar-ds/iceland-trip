@@ -135,14 +135,14 @@ def main():
         console.print("[yellow]Aborted by user.[/]")
         return
 
-    # ── 3. Call LLM ─────────────────────────────────────────────────────
-    console.print("\n[bold]Calling LLM to plan day trips...[/]")
+    # ── 3. Agentic LLM planning (multi-turn) ─────────────────────────────
+    console.print("\n[bold]Starting agentic trip planner (LLM can ask questions)...[/]")
     sys.path.append(r"C:\Users\dariu\Python_Scripts\AI_Devs4\_tools")
 
-    from llm_utils import call_llm_for_days
+    from agentic_planner import plan_trip_with_agent
 
     try:
-        days = call_llm_for_days(data, PROMPT_FILE)
+        days = plan_trip_with_agent(data, PROMPT_FILE)
     except RuntimeError as e:
         console.print(f"[red]LLM planning failed: {e}[/]")
         console.print("[yellow]Falling back to heuristic planner...[/]")
