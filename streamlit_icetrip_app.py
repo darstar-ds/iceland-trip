@@ -502,6 +502,31 @@ elif page == "Results":
                 width="stretch",
             )
 
+    # ── Feedback for next iteration ──────────────────────────────────────
+    FEEDBACK_FILE = "user_feedback.txt"
+    st.divider()
+    st.subheader("Feedback for Next Iteration")
+    st.markdown("Your suggestions will be included in the prompt the next time the LLM planner runs.")
+
+    if os.path.exists(FEEDBACK_FILE):
+        with open(FEEDBACK_FILE, "r", encoding="utf-8") as f:
+            existing_feedback = f.read().strip()
+    else:
+        existing_feedback = ""
+
+    feedback = st.text_area(
+        "What would you change or improve?",
+        value=existing_feedback,
+        placeholder="e.g. Spend more time on the South Coast, skip the hot dog stand...",
+        height=120,
+        label_visibility="collapsed",
+    )
+
+    if st.button("Save Feedback", type="primary", width="stretch"):
+        with open(FEEDBACK_FILE, "w", encoding="utf-8") as f:
+            f.write(feedback.strip() + "\n")
+        st.success("Feedback saved — it will be used in the next planning run.")
+
 # ===================================================================
 # ABOUT / HELP
 # ===================================================================
