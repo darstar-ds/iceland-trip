@@ -4,3 +4,4 @@ __pycache__/
 img/
 maps/
 results/
+.streamlit/secrets.toml

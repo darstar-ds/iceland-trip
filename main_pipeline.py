@@ -1,9 +1,9 @@
-import os, json, sys
+import os, json
 from datetime import datetime
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
-from rich.prompt import Confirm
+from rich.prompt import Confirm, Prompt
 
 DATA_FILE = "trip_data.json"
 PROMPT_FILE = "prompt_day_trip_planner.txt"
@@ -137,7 +137,6 @@ def main():
 
     # ── 3. Agentic LLM planning (multi-turn) ─────────────────────────────
     console.print("\n[bold]Starting agentic trip planner (LLM can ask questions)...[/]")
-    sys.path.append(r"C:\Users\dariu\Python_Scripts\AI_Devs4\_tools")
 
     from agentic_planner import plan_trip_with_agent
 
@@ -180,6 +179,16 @@ def main():
         if f.startswith("slide_") and f.endswith(".png"):
             console.print(f"  * {os.path.join(RESULTS_DIR, f)}")
     console.print()
+
+    # ── 8. User feedback ─────────────────────────────────────────────────
+    FEEDBACK_FILE = "user_feedback.txt"
+    if Confirm.ask("\n[bold]Would you like to provide feedback for the next planning iteration?[/]"):
+        feedback = Prompt.ask("  Your suggestions")
+        with open(FEEDBACK_FILE, "w", encoding="utf-8") as f:
+            f.write(feedback + "\n")
+        console.print(f"[green]  [OK]   Feedback saved to {FEEDBACK_FILE}[/]")
+    else:
+        console.print("[dim]  No feedback saved. Previous feedback (if any) will be reused.[/]")
 
 
 if __name__ == "__main__":

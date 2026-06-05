@@ -1,7 +1,6 @@
-import json, re, os, sys
+import json, re, os
 
-sys.path.append(r"C:\Users\dariu\Python_Scripts\AI_Devs4\_tools")
-from openrouter import ask_openrouter
+from openrouter_utils import ask_openrouter
 
 DEFAULT_MODEL = "deepseek/deepseek-v4-flash"
 MAX_RETRIES = 2
@@ -26,6 +25,14 @@ def _build_prompt(trip_data, prompt_path):
     prompt = template.replace("{{ TRIP_DATA_JSON }}", data_json)
     prompt = prompt.replace("{max_day_hours}", str(max_hours))
     prompt = prompt.replace("{avg_speed_kmh}", str(avg_speed))
+
+    FEEDBACK_FILE = "user_feedback.txt"
+    if os.path.exists(FEEDBACK_FILE):
+        with open(FEEDBACK_FILE, "r", encoding="utf-8") as f:
+            feedback = f.read().strip()
+        if feedback:
+            prompt += "\n\n## User Feedback from Previous Runs\n" + feedback
+
     return prompt
 
 

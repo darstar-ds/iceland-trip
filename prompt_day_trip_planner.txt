@@ -17,6 +17,8 @@ You are an Iceland travel planner. Your task is to organize the following trip d
 - Include ALL locations listed as attractions — none should be left out.
 - Accommodations should appear in the route as start/end points but not as sightseeing stops.
 - The airport is a transport hub, not a sightseeing stop.
+- For the South Coast segment (based at South Coast Panorama): on the first available day after checking in, drive directly to the easternmost attraction (e.g. Diamond Beach / Jokulsarlon), then visit nearby attractions on the return route westward back toward the base. Reserve the remaining attractions (closer to the base) for the following day.
+- Evaluate attractions based on their attractiveness / interest level, not on visit time or driving distance. When removals are needed, remove the least attractive attractions first.
 
 # Response format
 

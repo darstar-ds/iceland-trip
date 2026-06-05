@@ -5,3 +5,4 @@ Pillow>=9.0.0
 rich>=13.0.0
 fpdf2>=2.5.0
 PyMuPDF>=1.21.0
+streamlit>=1.28.0

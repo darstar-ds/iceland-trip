@@ -7,17 +7,21 @@ iteratively refine the plan until a valid final plan is produced.
 """
 
 import json
+import os
 import re
-import sys
+import time
 from datetime import datetime
 
-sys.path.append(r"C:\Users\dariu\Python_Scripts\AI_Devs4\_tools")
-from openrouter import ask_openrouter
+import requests
+
+from openrouter_utils import ask_openrouter
 from rich.console import Console
 from rich.prompt import Confirm, IntPrompt
 
 DEFAULT_MODEL = "deepseek/deepseek-v4-flash"
 MAX_TURNS = 10
+API_RETRIES = 3
+FEEDBACK_FILE = "user_feedback.txt"
 REQUIRED_DAY_FIELDS = {"day_number", "date", "label", "locations_in_order"}
 WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -83,7 +87,7 @@ For choice questions:
 - Ask only ONE question per turn.
 - Do NOT repeat a question with the same id.
 - If the user declined booking changes, do NOT ask about date changes again.
-- Prefer suggesting removals of low-value or redundant attractions before asking about booking changes.
+- When suggesting removals, prioritize the least attractive attractions first (judge by interest level, not visit time). Do NOT suggest removing attractions based on visit time or driving distance.
 - When you output the final plan, it must include ALL remaining attractions — none left out.
 - Day 1 is always the arrival day (airport -> first accommodation).
 - The final day must return to the airport.
@@ -201,6 +205,14 @@ class AgenticPlanner:
             parts.append("## Constraint")
             parts.append("The user has declined to change any booking dates. Do NOT ask about date changes.")
 
+        if os.path.exists(FEEDBACK_FILE):
+            with open(FEEDBACK_FILE, "r", encoding="utf-8") as f:
+                feedback = f.read().strip()
+            if feedback:
+                parts.append("")
+                parts.append("## User Feedback from Previous Runs")
+                parts.append(feedback)
+
         parts.append("")
         parts.append("## Current Turn")
         parts.append("Review the trip data and either ask a question or output the final plan.")
@@ -260,7 +272,21 @@ class AgenticPlanner:
             console.print(f"\n[dim]--- Agent turn {turn}/{MAX_TURNS} ---[/]")
 
             prompt = self._build_prompt()
-            raw = ask_openrouter(prompt, model=self.model)
+
+            last_err = None
+            for attempt in range(API_RETRIES):
+                try:
+                    raw = ask_openrouter(prompt, model=self.model)
+                    last_err = None
+                    break
+                except (requests.exceptions.RequestException, ConnectionError, TimeoutError) as e:
+                    last_err = e
+                    console.print(f"[yellow]  API request failed (attempt {attempt + 1}/{API_RETRIES}): {e}[/]")
+                    if attempt + 1 < API_RETRIES:
+                        time.sleep(2)
+            if last_err:
+                raise RuntimeError(f"API request failed after {API_RETRIES} attempts: {last_err}")
+
             cleaned = _extract_json(raw)
 
             try:
