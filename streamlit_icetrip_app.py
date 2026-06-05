@@ -364,17 +364,65 @@ elif page == "Results":
     days = st.session_state.plan_result
     st.success(f"Trip planned — {len(days)} days")
 
+    all_plan_locs = [loc for d in days for loc in d.get("locations", [])]
+    missing_imgs = [l for l in all_plan_locs if l.get("name") and not _cached_image(l["name"])]
+    unique_missing = list({l["name"]: l for l in missing_imgs}.values())
+    if unique_missing:
+        st.info(f"{len(unique_missing)} location images not yet cached")
+        if st.button(f"📷 Fetch {len(unique_missing)} images", width="stretch"):
+            _bulk_fetch_images(unique_missing)
+            st.rerun()
+
+    from pptx_builder import make_map, gmaps_link
+
+    if "result_maps" not in st.session_state:
+        st.session_state.result_maps = {}
+
     for i, day in enumerate(days):
-        with st.expander(f"{day['title']}", expanded=(i < 2)):
-            locs = day.get("locations", [])
-            for j, loc in enumerate(locs):
-                name = loc.get("name", "?")
-                desc = loc.get("desc", "")
-                visit = loc.get("est_visit_time")
-                icon = "🛏️" if loc.get("is_booking") else "✈️" if loc.get("type") == "transport" else "📍"
-                st.markdown(f"{icon} **{name}**" + (f" — {_fmt_visit(visit)}" if visit else ""))
-                if desc:
-                    st.caption(desc[:200])
+        title = day.get("title", f"Day {i + 1}")
+        locs = day.get("locations", [])
+        with st.expander(f"📅 {title}", expanded=(i < 2)):
+            col_map, col_locs = st.columns([1.3, 1])
+
+            # ── Map column ──────────────────────────────────────────
+            with col_map:
+                map_key = f"rmap_{i}"
+                if map_key not in st.session_state.result_maps:
+                    try:
+                        st.session_state.result_maps[map_key] = make_map(i, locs)
+                    except Exception:
+                        st.session_state.result_maps[map_key] = None
+
+                map_path = st.session_state.result_maps.get(map_key)
+                if map_path and os.path.exists(map_path):
+                    st.image(map_path, width="stretch")
+                else:
+                    st.info("🗺️ Map unavailable")
+
+                gmaps_url = gmaps_link(locs)
+                st.link_button("🌐 Open route in Google Maps", gmaps_url, type="secondary", width="stretch")
+
+            # ── Locations column ────────────────────────────────────
+            with col_locs:
+                for loc in locs:
+                    loc_cols = st.columns([1, 3])
+
+                    img_path = _cached_image(loc.get("name", ""))
+                    if img_path:
+                        loc_cols[0].image(img_path, width=65)
+                    else:
+                        icon = "🛏️" if loc.get("is_booking") else "✈️" if loc.get("type") == "transport" else "📍"
+                        loc_cols[0].markdown(f"<div style='font-size:28px;text-align:center;'>{icon}</div>", unsafe_allow_html=True)
+
+                    name = loc.get("name", "?")
+                    desc = loc.get("desc", "")
+                    visit = loc.get("est_visit_time")
+                    visit_str = f"  —  {_fmt_visit(visit)}" if visit else ""
+                    loc_cols[1].markdown(f"**{name}**{visit_str}")
+                    if desc:
+                        loc_cols[1].caption(desc[:200])
+
+                    st.divider()
 
     # ── Download buttons ────────────────────────────────────────────────
     st.divider()
