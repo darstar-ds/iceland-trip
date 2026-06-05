@@ -122,7 +122,12 @@ Loads `trip_data.json`, shows a summary, then runs the agentic LLM planner (fall
    API_OPENROUTER_KEY = "sk-or-v1-..."
    ```
    (Get a key at [openrouter.ai/keys](https://openrouter.ai/keys).)
-4. Deploy. The heuristic planner works without any API key.
+4. **Optional** — for interactive Google Maps route previews in the Results page, also add:
+   ```toml
+   GOOGLE_MAPS_API_KEY = "AIzaSy..."
+   ```
+   Get a free key at [console.cloud.google.com](https://console.cloud.google.com/apis/credentials) and enable the **Maps Embed API**.
+5. Deploy. The heuristic planner and static maps work without any API key.
 
 ## Requirements
 

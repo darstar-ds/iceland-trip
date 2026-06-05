@@ -93,6 +93,35 @@ def _bulk_fetch_images(locations):
     st.session_state.image_map.update(result)
 
 
+def _gmaps_api_key():
+    try:
+        return st.secrets.get("GOOGLE_MAPS_API_KEY", "") or os.environ.get("GOOGLE_MAPS_API_KEY", "")
+    except (ImportError, RuntimeError):
+        return os.environ.get("GOOGLE_MAPS_API_KEY", "")
+
+
+def _gmaps_embed_url(locs):
+    """Build a Google Maps Embed API directions URL. Returns None if no key or too few points."""
+    api_key = _gmaps_api_key()
+    if not api_key:
+        return None
+    coords = [(l["lat"], l["lon"]) for l in locs if l.get("lat") and l.get("lon")]
+    if len(coords) < 2:
+        return None
+    origin = f"{coords[0][0]},{coords[0][1]}"
+    destination = f"{coords[-1][0]},{coords[-1][1]}"
+    waypoints = "|".join(f"{lat},{lon}" for lat, lon in coords[1:-1])
+    parts = waypoints.split("|")
+    if len(parts) > 9:
+        parts = parts[:9]
+    waypoints = "|".join(parts)
+    import urllib.parse
+    params = {"key": api_key, "origin": origin, "destination": destination}
+    if waypoints:
+        params["waypoints"] = waypoints
+    return f"https://www.google.com/maps/embed/v1/directions?{urllib.parse.urlencode(params)}"
+
+
 # ---------------------------------------------------------------------------
 # Sidebar
 # ---------------------------------------------------------------------------
@@ -386,18 +415,24 @@ elif page == "Results":
 
             # ── Map column ──────────────────────────────────────────
             with col_map:
-                map_key = f"rmap_{i}"
-                if map_key not in st.session_state.result_maps:
-                    try:
-                        st.session_state.result_maps[map_key] = make_map(i, locs)
-                    except Exception:
-                        st.session_state.result_maps[map_key] = None
-
-                map_path = st.session_state.result_maps.get(map_key)
-                if map_path and os.path.exists(map_path):
-                    st.image(map_path, width="stretch")
+                embed_url = _gmaps_embed_url(locs)
+                if embed_url:
+                    st.components.v1.html(
+                        f'<iframe src="{embed_url}" width="100%" height="400" style="border:0;" allowfullscreen loading="lazy"></iframe>',
+                        height=400,
+                    )
                 else:
-                    st.info("🗺️ Map unavailable")
+                    map_key = f"rmap_{i}"
+                    if map_key not in st.session_state.result_maps:
+                        try:
+                            st.session_state.result_maps[map_key] = make_map(i, locs)
+                        except Exception:
+                            st.session_state.result_maps[map_key] = None
+                    map_path = st.session_state.result_maps.get(map_key)
+                    if map_path and os.path.exists(map_path):
+                        st.image(map_path, width="stretch")
+                    else:
+                        st.info("🗺️ Map unavailable")
 
                 gmaps_url = gmaps_link(locs)
                 st.link_button("🌐 Open route in Google Maps", gmaps_url, type="secondary", width="stretch")
@@ -564,8 +599,14 @@ elif page == "About / Help":
            ```toml
            API_OPENROUTER_KEY = "sk-or-v1-..."
            ```
-           (Get a key at [openrouter.ai/keys](https://openrouter.ai/keys).)
-        5. Deploy. The heuristic planner works without any API key.
+           Get a key at [openrouter.ai/keys](https://openrouter.ai/keys).
+        5. **Optional** — for interactive Google Maps route previews, also add:
+           ```toml
+           GOOGLE_MAPS_API_KEY = "AIzaSy..."
+           ```
+           Get a free key at [console.cloud.google.com](https://console.cloud.google.com/apis/credentials)
+           and enable the **Maps Embed API**.
+        6. Deploy. The heuristic planner and static maps work without any API key.
         """)
 
     with st.expander("Requirements"):
