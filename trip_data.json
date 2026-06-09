@@ -1,6 +1,6 @@
 {
   "trip": {
-    "start_date": "2026-06-06",
+    "start_date": "2026-06-10",
     "end_date": "2026-06-14",
     "max_day_hours": 8,
     "avg_speed_kmh": 70,
@@ -28,7 +28,7 @@
       "name": "NORR Apartment, Reykjavik",
       "type": "accommodation",
       "is_included": false,
-      "is_booking": true,
+      "is_booking": false,
       "start_booking": "2026-06-06",
       "end_booking": "2026-06-10",
       "est_visit_time": 0.25,
