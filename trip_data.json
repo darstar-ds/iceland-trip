@@ -37,6 +37,19 @@
       "wiki": "Reykjavik",
       "desc": "Check in to your central base. No sightseeing today - settle in, rest, and grab a relaxed first dinner."
     }, 
+     {
+      "name": "Rauðfeldsgjá Gorge",
+      "type": "attraction",
+      "is_included": true,
+      "is_booking": false,
+      "start_booking": null,
+      "end_booking": null,
+      "est_visit_time": 0.75,
+      "lat": 64.8813462,
+      "lon": -23.9830787,
+      "wiki": "Rauðfeldsgjá Gorge",
+      "desc": "Canyon"
+    },
       {
       "name": "Murals of hellissandur",
       "type": "attraction",
