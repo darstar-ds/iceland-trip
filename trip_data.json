@@ -1,6 +1,6 @@
 {
   "trip": {
-    "start_date": "2026-06-10",
+    "start_date": "2026-06-11",
     "end_date": "2026-06-14",
     "max_day_hours": 8,
     "avg_speed_kmh": 70,
@@ -262,7 +262,7 @@
     {
       "name": "Akrafjall",
       "type": "attraction",
-      "is_included": true,
+      "is_included": false,
       "is_booking": false,
       "start_booking": null,
       "end_booking": null,
@@ -277,7 +277,7 @@
     {
       "name": "Grabrok Craters",
       "type": "attraction",
-      "is_included": true,
+      "is_included": false,
       "is_booking": false,
       "start_booking": null,
       "end_booking": null,
@@ -290,7 +290,7 @@
     {
       "name": "Reykholt Viking House",
       "type": "attraction",
-      "is_included": true,
+      "is_included": false,
       "is_booking": false,
       "start_booking": null,
       "end_booking": null,
